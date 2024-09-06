@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  email       String       @unique @db.VarChar(255)
+  password    String       @db.VarChar(255)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+  investments Investment[]
+  Withdrawals Withdrawal[]
+
+  @@index([email], name: "users_email_idx")
+  @@map("users")
+}
+
+model Investment {
+  id          Int          @id @default(autoincrement())
+  userId      Int          @map("user_id")
+  amount      Float        @db.DoublePrecision
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+  user        User         @relation(fields: [userId], references: [id])
+  Withdrawals Withdrawal[]
+
+  @@index([userId], name: "investments_user_id_idx")
+  @@index([userId, deletedAt], name: "investments_user_id_deleted_at_idx")
+  @@map("investments")
+}
+
+model Withdrawal {
+  id           Int        @id @default(autoincrement())
+  userId       Int        @map("user_id")
+  investmentId Int        @map("investment_id")
+  amount       Float      @db.DoublePrecision
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
+  user         User       @relation(fields: [userId], references: [id])
+  investment   Investment @relation(fields: [investmentId], references: [id])
+
+  @@index([userId], name: "withdrawals_user_id_idx")
+  @@index([userId, id], name: "withdrawals_id_user_id_idx")
+  @@index([investmentId], name: "withdrawals_investment_id_idx")
+  @@index([investmentId, id], name: "withdrawals_id_investment_id_idx")
+  @@index([investmentId, userId], name: "withdrawals_user_id_investment_id_idx")
+  @@map("withdrawals")
+}
