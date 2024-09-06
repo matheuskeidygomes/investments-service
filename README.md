@@ -6,22 +6,15 @@
 
 # Instalação 
 
-Para instalar e executar a aplicação, basta executar no diretório raiz da aplicação os seguintes comando:
+Para executar a aplicação, é recomendado ter instalado o Docker e Docker Compose para evitar possíveis problemas de incompatibilidade da versão Node e dependência de serviços externos. Para iniciar basta executar no diretório raiz da aplicação o seguinte comando:
 
 ```bash
-# Executar na máquina:
+## Obs: Antes de executar a aplicação, é necessário garantir que as variáveis de ambientes estejam devidamente configuradas em um arquivo .env na raiz do diretório
 
-$ npm i 
-$ npx prisma generate
-$ npm run start:dev
-
-# Executar via Docker (recomendado):
+# Executando via Docker:
 
 $ docker compose up -d
 ```
-
-Obs(1): Antes de executar a aplicação, é necessário garantir que as variáveis de ambientes sejam previamente configuradas. 
-Obs(2): É recomendado executar a aplicação via Docker para evitar possíveis problemas de incompatibilidade da versão Node e dependência de serviços externos.
 
 # Testes
 
