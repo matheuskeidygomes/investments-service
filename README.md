@@ -26,4 +26,8 @@ $ npm run test
 
 # Swagger 
 
-Para acessar o Swagger, uma vez que a aplicação estiver sendo executada, acessar o endpoint "/doc".
+Para acessar o Swagger, uma vez que a aplicação estiver sendo executada, acessar o endpoint "/doc" no host onde a aplicação esteja rodando.
+
+```bash
+ Exemplo: http://localhost:3000/doc 
+```
