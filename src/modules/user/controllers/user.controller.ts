@@ -45,7 +45,7 @@ export default class UserController {
     }
 
     try {
-      return await this.userService.getUserById(id);
+      return await this.userService.getUserByIdOrThrow(id);
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }

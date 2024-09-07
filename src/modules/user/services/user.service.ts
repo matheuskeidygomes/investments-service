@@ -31,7 +31,7 @@ export default class UsersService {
     return users;
   }
 
-  async getUserById(id: number): Promise<User> {
+  async getUserByIdOrThrow(id: number): Promise<User> {
     const cacheKey = `user:id:${id}`;
     const cachedUser = await this.cacheManager.get<User>(cacheKey);
     if (cachedUser) return cachedUser;
@@ -54,7 +54,7 @@ export default class UsersService {
   }
 
   async verifyUserIsActivatedOrThrow(id: number): Promise<User> {
-    const user: User = await this.getUserById(id);
+    const user: User = await this.getUserByIdOrThrow(id);
 
     if (user.deletedAt) {
       throw new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED);
@@ -104,7 +104,7 @@ export default class UsersService {
   }
 
   async updateUser(id: number, data: User): Promise<User> {
-    const foundUser = await this.getUserById(id);
+    const foundUser = await this.getUserByIdOrThrow(id);
 
     if (foundUser.deletedAt) {
       throw new HttpException(
@@ -124,7 +124,7 @@ export default class UsersService {
   }
 
   async deactivateUser(id: number): Promise<User> {
-    const foundUser = await this.getUserById(id);
+    const foundUser = await this.getUserByIdOrThrow(id);
 
     if (foundUser.deletedAt) {
       throw new HttpException(
@@ -146,7 +146,7 @@ export default class UsersService {
   }
 
   async activateUser(id: number): Promise<User> {
-    const foundUser = await this.getUserById(id);
+    const foundUser = await this.getUserByIdOrThrow(id);
 
     if (!foundUser.deletedAt) {
       throw new HttpException(

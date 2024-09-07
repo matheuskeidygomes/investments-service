@@ -31,3 +31,10 @@ Para acessar o Swagger, uma vez que a aplicação estiver sendo executada, acess
 ```bash
  Exemplo: http://localhost:3000/doc 
 ```
+
+# Regras de negócio:
+
+- Não é possível criar 2 usuários com o mesmo e-mail.
+- O usuário só é permitido a atualizar/ativar/desativar seu próprio perfil
+- Caso o usuário esteja desativado, não será possível atualizar seu perfil ou visualizar/criar investimentos/retiradas.
+- O usuário não é permitido visualizar/retirar investimentos criados por outros usuários, caso tente, será retornado "not found".
