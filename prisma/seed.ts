@@ -2,10 +2,15 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import calculateInvestment from '../src/helpers/calculate';
-import randomDate from '../src/helpers/time';
 
 const usersNumber = 1000;           
-const investmentsNumber = 100;      
+const investmentsNumber = 100;   
+
+const randomDate = (start: Date, end: Date): Date => {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+  );
+};
 
 const prisma = new PrismaClient();
 
