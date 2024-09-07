@@ -4,7 +4,6 @@ import UserService from '../../user/services/user.service';
 import { Investment } from '@prisma/client';
 import calculateInvestment from 'src/helpers/calculate';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-// import { Cache } from 'cache-manager';
 
 @Injectable()
 export default class InvestmentService {

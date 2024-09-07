@@ -42,6 +42,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^7.1.10",
+    "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "^4.11.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cache-manager-redis-store": "^2.0.4",
