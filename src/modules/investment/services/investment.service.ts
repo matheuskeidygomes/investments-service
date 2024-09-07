@@ -43,6 +43,8 @@ export default class InvestmentService {
       skip: (page - 1) * limit,
     });
 
+    console.log(investments);
+
     investments = investments.map((investment) => {
       return {
         ...investment,
