@@ -60,6 +60,7 @@ async function createInvestments() {
         userId: user.id,
         createdAt,
         deletedAt,
+        updatedAt: deletedAt ?? createdAt,
       });
     }
   });
