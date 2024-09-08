@@ -3,8 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import calculateInvestment from '../src/helpers/calculate';
 
-const usersNumber = 1000;           
-const investmentsNumber = 100;   
+const usersNumber = 1000;
+const investmentsNumber = 100;
 
 const randomDate = (start: Date, end: Date): Date => {
   return new Date(
@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 async function createUsers() {
   const users = [];
   const uniqueEmails = [];
-  
+
   console.log('--- Creating users...');
 
   for (let i = 0; i < usersNumber; i++) {
@@ -50,12 +50,16 @@ async function createInvestments() {
 
   console.log('--- Creating investments...');
 
-  users.forEach((user) => {
+  users.forEach((user, index) => {
     for (let i = 0; i < investmentsNumber; i++) {
+      const createdAt = randomDate(new Date(2020, 0, 1), new Date());
+      const deletedAt = index % 2 === 0 ? randomDate(createdAt, new Date()) : null;
+
       investments.push({
         amount: Number(faker.finance.amount()),
         userId: user.id,
-        createdAt: randomDate(new Date(2020, 0, 1), new Date()),
+        createdAt,
+        deletedAt,
       });
     }
   });
@@ -74,9 +78,9 @@ async function createWithdrawals() {
 
   console.log('--- Creating withdrawals...');
 
-  investments.forEach((investment, index) => {
-    if (index % 2 === 0) return;
-  
+  investments.forEach((investment) => {
+    if (!investment.deletedAt) return;
+
     withdrawals.push({
       amount: calculateInvestment(investment),
       investmentId: investment.id,
