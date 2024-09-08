@@ -34,7 +34,21 @@ Para acessar o Swagger, uma vez que a aplicação estiver sendo executada, acess
 
 # Regras de negócio:
 
+### Usuários
+
 - Não é possível criar 2 usuários com o mesmo e-mail.
-- O usuário só é permitido a atualizar/ativar/desativar seu próprio perfil
-- Caso o usuário esteja desativado, não será possível atualizar seu perfil ou visualizar/criar investimentos/retiradas.
-- O usuário não é permitido visualizar/retirar investimentos criados por outros usuários, caso tente, será retornado "not found".
+- É permitido que o usuário visualize todos os usuários cadastrados.
+- É permitido que o usuário atualize/ative/desative somente o seu próprio perfil.
+- Caso o usuário se encontre desativado, o mesmo não poderá atualizar os dados do seu perfil.
+
+### Investimentos
+
+- O valor do investimento deve ser no mínimo 50.
+- O usuário só poderá visualizar os seus próprios investimentos.
+- Caso o usuário se encontre desativado, o mesmo não poderá visualizar/criar investimentos.
+
+### Retiradas
+
+- O usuário só poderá visualizar suas próprias retiradas.
+- Não é permitido que o usuário crie uma retirada de um investimento que não o pertence.
+- Caso o usuário se encontre desativado, o mesmo não poderá visualizar/criar retiradas.

@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
 import PrismaService from '../../../prisma/services/prisma.service';
 import UserService from '../../user/services/user.service';
 import { Investment } from '@prisma/client';
-import calculateInvestment from 'src/helpers/calculate';
+import calculateInvestment from '../../../helpers/calculate';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
@@ -42,8 +42,6 @@ export default class InvestmentService {
       take: limit,
       skip: (page - 1) * limit,
     });
-
-    console.log(investments);
 
     investments = investments.map((investment) => {
       return {
@@ -107,6 +105,9 @@ export default class InvestmentService {
       },
     });
 
+    if (!investment) {
+      throw new HttpException('Investment not found', HttpStatus.NOT_FOUND);
+    }
     if (investment.userId !== userId) {
       throw new HttpException(
         'You are not authorized to deactivate this investment',

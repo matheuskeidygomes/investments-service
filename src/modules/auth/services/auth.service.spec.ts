@@ -12,7 +12,7 @@ import { userData, newUserData } from '../../user/common/mock';
 import AuthService from './auth.service';
 import { hashSync } from 'bcrypt';
 
-describe('authentication', () => {
+describe('AuthService', () => {
   let userService: UserService;
   let authService: AuthService;
   let prismaService: PrismaService;
@@ -39,9 +39,7 @@ describe('authentication', () => {
           useValue: {
             user: {
               create: jest.fn(),
-              findMany: jest.fn(),
               findFirst: jest.fn(),
-              update: jest.fn(),
             },
           },
         },
@@ -124,8 +122,8 @@ describe('authentication', () => {
       const login = new LoginDto({ email: '', password: userData.password });
       const errors = await validate(login);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe('Email must not be empty');
     });
 
     it('it should throw error when email is not valid', async () => {
@@ -135,16 +133,18 @@ describe('authentication', () => {
       });
       const errors = await validate(login);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isEmail');
+      expect(errors[0].constraints.isEmail).toBe('Email must be a valid email');
     });
 
     it('it should throw error when password field is empty', async () => {
       const login = new LoginDto({ email: userData.email, password: '' });
       const errors = await validate(login);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe(
+        'Password must not be empty',
+      );
     });
   });
 
@@ -168,8 +168,8 @@ describe('authentication', () => {
       const register = new RegisterDto(newUserData);
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isEmailUnique');
+      expect(errors[0].constraints.isEmailUnique).toBe('Email already exists');
     });
 
     it('it should throw error when email field is empty', async () => {
@@ -179,8 +179,8 @@ describe('authentication', () => {
       });
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe('Email must not be empty');
     });
 
     it('it should throw error when email is not valid', async () => {
@@ -190,8 +190,8 @@ describe('authentication', () => {
       });
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isEmail');
+      expect(errors[0].constraints.isEmail).toBe('Email must be a valid email');
     });
 
     it('it should throw error when password field is empty', async () => {
@@ -201,8 +201,10 @@ describe('authentication', () => {
       });
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe(
+        'Password must not be empty',
+      );
     });
 
     it('it should throw error when password have spaces', async () => {
@@ -212,8 +214,10 @@ describe('authentication', () => {
       });
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('NoSpaces');
+      expect(errors[0].constraints.NoSpaces).toBe(
+        'Password should not contain spaces',
+      );
     });
 
     it('it should throw error when name field is empty', async () => {
@@ -223,8 +227,8 @@ describe('authentication', () => {
       });
       const errors = await validate(register);
 
-      expect(errors).toHaveLength(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe('Name must not be empty');
     });
   });
 });

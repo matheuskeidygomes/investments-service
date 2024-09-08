@@ -170,8 +170,8 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('isEmailUnique');
+      expect(errors[0].constraints.isEmailUnique).toBe('Email already exists');
     });
 
     it('should return an error if email is not valid', async () => {
@@ -180,8 +180,8 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('isEmail');
+      expect(errors[0].constraints.isEmail).toBe('Email must be a valid email');
     });
 
     it('should return an error if password have spaces', async () => {
@@ -190,8 +190,10 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('NoSpaces');
+      expect(errors[0].constraints.NoSpaces).toBe(
+        'Password should not contain spaces',
+      );
     });
 
     it('should return an error if email field is empty', async () => {
@@ -200,8 +202,8 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe('Email must not be empty');
     });
 
     it('should return an error if password field is empty', async () => {
@@ -210,8 +212,10 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe(
+        'Password must not be empty',
+      );
     });
 
     it('should return an error if name field is empty', async () => {
@@ -220,8 +224,8 @@ describe('UserService', () => {
       });
       const errors = await validate(user);
 
-      expect(errors.length).toBe(1);
       expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors[0].constraints.isNotEmpty).toBe('Name must not be empty');
     });
   });
 

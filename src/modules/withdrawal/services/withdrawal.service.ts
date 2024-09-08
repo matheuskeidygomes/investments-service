@@ -95,14 +95,12 @@ export default class WithdrawalService {
     investmentId: number,
     userId: number,
   ): Promise<Withdrawal> {
-    const investment = await this.investmentService.getInvestmentById(
+    const investment = await this.investmentService.deactivateInvestment(
       investmentId,
       userId,
     );
-    const deactivateInvestment =
-      await this.investmentService.deactivateInvestment(investmentId, userId);
 
-    if (!deactivateInvestment.deletedAt) {
+    if (!investment.deletedAt) {
       throw new HttpException(
         'Failed to withdraw investment',
         HttpStatus.UNPROCESSABLE_ENTITY,
