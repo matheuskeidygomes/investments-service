@@ -28,14 +28,14 @@ $ npm run test
 
 Para acessar o Swagger, uma vez que a aplicação estiver sendo executada, acessar o endpoint "/doc" no host onde a aplicação esteja rodando.
 
+```bash
+ Exemplo: http://localhost:3000/doc 
+```
+
 # Postman Collection
 
 Clique [aqui](https://drive.google.com/file/d/1LkWqptHpnr9jqbrwSakf88A0kTyLO3Xp/view) para baixar uma collection Postman da aplicação.
 
-
-```bash
- Exemplo: http://localhost:3000/doc 
-```
 
 # Regras de negócio:
 
