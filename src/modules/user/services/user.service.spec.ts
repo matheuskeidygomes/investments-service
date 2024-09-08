@@ -8,7 +8,6 @@ import { User } from '@prisma/client';
 import { UpdateUserDto } from '../dtos/user.dto';
 import { useContainer, validate } from 'class-validator';
 import { IsEmailUniqueConstraint } from '../constraints/isEmailUnique';
-import { hashSync } from 'bcrypt';
 import {
   userData,
   usersData,
