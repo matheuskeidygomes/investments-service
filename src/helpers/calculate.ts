@@ -6,15 +6,22 @@ import {
   moreThan24MonthsTax,
 } from '../common/constants';
 
-function calculateMonthsAge(createdAt: Date, currentDate?: Date) {
-  const current = currentDate || new Date();
-  const diff = current.getTime() - createdAt.getTime();
-  return diff / (1000 * 60 * 60 * 24 * 30);
+function calculateMonthsAge(createdAt: Date, deletedAt?: Date) {
+  const endDate = deletedAt || new Date();
+
+  const startYear = createdAt.getFullYear();
+  const startMonth = createdAt.getMonth();
+  const endYear = endDate.getFullYear();
+  const endMonth = endDate.getMonth();
+
+  const diffYear = endYear - startYear;
+  const diffMonth = endMonth - startMonth;
+
+  return diffYear * 12 + diffMonth;
 }
 
 function calculateInvestmentAmount(
   amount: number,
-  interestRate: number,
   createdAt: Date,
   currentDate?: Date,
 ) {
@@ -39,7 +46,6 @@ export default function calculateInvestment(investment: Investment): number {
   const { amount, createdAt, deletedAt } = investment;
   const calculatedInvestment = calculateInvestmentAmount(
     amount,
-    interestRate,
     createdAt,
     deletedAt,
   );
