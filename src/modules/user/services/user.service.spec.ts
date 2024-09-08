@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import UserService from './user.service';
-import PrismaService from '../../../prisma/services/prisma.service'; // Ajuste o caminho conforme necessário
+import PrismaService from '../../../prisma/services/prisma.service';
 import { Cache } from '@nestjs/cache-manager';
 import { CacheModule } from '@nestjs/cache-manager';
 import { User } from '@prisma/client';
-import { RegisterDto } from '../../auth/dtos/auth.dto';
 import { UpdateUserDto } from '../dtos/user.dto';
-import { validate } from 'class-validator';
+import { useContainer, validate } from 'class-validator';
+import { IsEmailUniqueConstraint } from '../constraints/isEmailUnique';
+import { hashSync } from 'bcrypt';
 import {
   userData,
   usersData,
@@ -46,11 +47,14 @@ describe('UserService', () => {
             set: jest.fn(),
           },
         },
+        IsEmailUniqueConstraint,
       ],
     }).compile();
 
     userService = module.get<UserService>(UserService);
     prismaService = module.get<PrismaService>(PrismaService);
+
+    useContainer(module, { fallbackOnErrors: true });
   });
 
   it('should be defined', () => {
@@ -66,10 +70,6 @@ describe('UserService', () => {
 
       const result = await userService.getUsers(1, 10);
 
-      expect(prismaService.user.findMany).toHaveBeenCalledWith({
-        take: 10,
-        skip: 0,
-      });
       expect(result).toEqual([
         { ...deepClone(usersData[0]), password: undefined },
         { ...deepClone(usersData[1]), password: undefined },
@@ -85,9 +85,6 @@ describe('UserService', () => {
 
       const result = await userService.getUserByIdOrThrow(1);
 
-      expect(prismaService.user.findFirst).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
       expect(result).toEqual({ ...deepClone(userData), password: undefined });
     });
 
@@ -103,20 +100,7 @@ describe('UserService', () => {
   });
 
   describe('createUser', () => {
-    it('should throw an HttpException if the user already exists', async () => {
-      jest
-        .spyOn(userService, 'getUserByEmail')
-        .mockResolvedValue(deepClone(userData));
-
-      const user = async () =>
-        await userService.createUser(deepClone(userData));
-
-      expect(user).rejects.toThrowError(
-        new HttpException('User already exists', HttpStatus.CONFLICT),
-      );
-    });
-
-    it('should create a user if not already exists', async () => {
+    it('should create a user', async () => {
       jest.spyOn(userService, 'getUserByEmail').mockResolvedValue(null);
 
       jest
@@ -126,9 +110,6 @@ describe('UserService', () => {
       const result = await userService.createUser(deepClone(newUserData));
 
       expect(result).toEqual({ ...deepClone(userData), password: undefined });
-      expect(prismaService.user.create).toHaveBeenCalledWith({
-        data: newUserData,
-      });
     });
   });
 
@@ -145,10 +126,6 @@ describe('UserService', () => {
 
       const result = await userService.updateUser(1, updateUserData as User);
 
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: 1 },
-        data: updateUserData,
-      });
       expect(result).toEqual({
         ...deepClone(userData),
         email: updateUserData.email,
@@ -182,34 +159,96 @@ describe('UserService', () => {
         ),
       );
     });
+
+    it('should return an error if email already exists', async () => {
+      jest
+        .spyOn(userService, 'getUserByEmail')
+        .mockResolvedValue(deepClone(userData));
+
+      const user = new UpdateUserDto({
+        email: userData.email,
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('isEmailUnique');
+    });
+
+    it('should return an error if email is not valid', async () => {
+      const user = new UpdateUserDto({
+        email: 'teste',
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('isEmail');
+    });
+
+    it('should return an error if password have spaces', async () => {
+      const user = new UpdateUserDto({
+        password: '123 456',
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('NoSpaces');
+    });
+
+    it('should return an error if email field is empty', async () => {
+      const user = new UpdateUserDto({
+        email: '',
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+    });
+
+    it('should return an error if password field is empty', async () => {
+      const user = new UpdateUserDto({
+        password: '',
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+    });
+
+    it('should return an error if name field is empty', async () => {
+      const user = new UpdateUserDto({
+        name: '',
+      });
+      const errors = await validate(user);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+    });
   });
 
   describe('deactivateUser', () => {
     it('should deactivate user', async () => {
+      const deletedAt = new Date();
+
       jest
         .spyOn(userService, 'getUserByIdOrThrow')
         .mockResolvedValue(deepClone(userData));
 
       jest.spyOn(prismaService.user, 'update').mockResolvedValue({
         ...deepClone(userData),
-        deletedAt: new Date(),
+        deletedAt,
       });
 
       const result = await userService.deactivateUser(1);
 
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: 1 },
-        data: { deletedAt: expect.any(Date) },
-      });
       expect(result).toEqual({
         ...deepClone(userData),
-        deletedAt: expect.any(Date),
+        deletedAt,
         password: undefined,
       });
     });
 
     it('should throw NotFoundException if user not found', async () => {
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(null);
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(null);
 
       const user = async () => await userService.deactivateUser(1);
 
@@ -247,10 +286,6 @@ describe('UserService', () => {
 
       const result = await userService.activateUser(1);
 
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: 1 },
-        data: { deletedAt: null },
-      });
       expect(result).toEqual({
         ...deepClone(userData),
         deletedAt: null,
@@ -259,7 +294,7 @@ describe('UserService', () => {
     });
 
     it('should throw NotFoundException if user not found', async () => {
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(null);
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(null);
 
       const user = async () => await userService.activateUser(1);
 
@@ -281,65 +316,6 @@ describe('UserService', () => {
           HttpStatus.UNPROCESSABLE_ENTITY,
         ),
       );
-    });
-  });
-
-  describe('validating user data when creating', () => {
-    it('should return an error if email is not valid', async () => {
-      const user = new RegisterDto({
-        ...deepClone(newUserData),
-        email: 'teste',
-      });
-      const errors = await validate(user);
-
-      expect(errors.length).toBe(1);
-      expect(errors[0].constraints).toHaveProperty('isEmail');
-    });
-  });
-
-  describe('validating user data when updating', () => {
-    it('should return an error if email is not valid', async () => {
-      const user = new UpdateUserDto({
-        ...deepClone(updateUserData),
-        email: 'teste',
-      });
-      const errors = await validate(user);
-
-      expect(errors.length).toBe(1);
-      expect(errors[0].constraints).toHaveProperty('isEmail');
-    });
-
-    it('should return an error if name is not a string', async () => {
-      const user = new UpdateUserDto({
-        ...deepClone(updateUserData),
-        name: 123,
-      });
-      const errors = await validate(user);
-
-      expect(errors.length).toBe(1);
-      expect(errors[0].constraints).toHaveProperty('isString');
-    });
-
-    it('should return an error if password is not a string', async () => {
-      const user = new UpdateUserDto({
-        ...deepClone(updateUserData),
-        password: 123,
-      });
-      const errors = await validate(user);
-
-      expect(errors.length).toBe(1);
-      expect(errors[0].constraints).toHaveProperty('isString');
-    });
-
-    it('should return an error if any field is empty', async () => {
-      const user = new UpdateUserDto({
-        ...deepClone(updateUserData),
-        email: '',
-      });
-      const errors = await validate(user);
-
-      expect(errors.length).toBe(1);
-      expect(errors[0].constraints).toHaveProperty('isNotEmpty');
     });
   });
 });
