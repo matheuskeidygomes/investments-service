@@ -9,7 +9,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import environment from '../config';
-// import * as redisStore from 'cache-manager-redis-store';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -33,9 +33,9 @@ import environment from '../config';
         {
           ttl: configService.get('requestTimeout'),
           limit: configService.get('requestPerMinute'),
-          // store: redisStore,
-          // host: configService.get('redisHost'),
-          // port: configService.get('redisPort'),
+          store: redisStore,
+          host: configService.get('redisHost'),
+          port: configService.get('redisPort'),
         },
       ],
     }),
