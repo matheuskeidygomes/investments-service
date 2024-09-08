@@ -11,7 +11,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import JwtAuthGuard from '../../auth/common/jwt.guard';
 import UserService from '../services/user.service';
 import { UpdateUserDto } from '../dtos/user.dto';
@@ -29,6 +36,27 @@ export default class UserController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get users' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number to fetch (default is 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items to fetch per page (default is 10)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   async getUsers(
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -44,9 +72,32 @@ export default class UserController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a user by id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'User id',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return a user',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid user id',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
   async getUser(@Param('id') id: number): Promise<User> {
     if (!id) {
-      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User id is required', HttpStatus.BAD_REQUEST);
     }
 
     try {
@@ -58,6 +109,37 @@ export default class UserController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update user' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'User id (must be the same as the authenticated user)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return updated user',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Cannot update other users',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User deactivated',
+  })
   async updateUser(
     @Req() req: Request,
     @Body() data: UpdateUserDto,
@@ -66,7 +148,7 @@ export default class UserController {
     const { user: userId } = req;
 
     if (!id) {
-      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User id is required', HttpStatus.BAD_REQUEST);
     }
     if (userId !== id) {
       throw new HttpException(
@@ -84,6 +166,37 @@ export default class UserController {
   }
 
   @Put(':id/deactivate')
+  @ApiOperation({ summary: 'Deactivate user' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'User id (must be the same as the authenticated user)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return deactivated user',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid user id',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Cannot deactivate other users',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User already deactivated',
+  })
   async deactivateUser(
     @Param('id') id: number,
     @Req() req: Request,
@@ -91,7 +204,7 @@ export default class UserController {
     const { user: userId } = req;
 
     if (!id) {
-      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User id is required', HttpStatus.BAD_REQUEST);
     }
     if (userId !== id) {
       throw new HttpException(
@@ -109,6 +222,37 @@ export default class UserController {
   }
 
   @Put(':id/activate')
+  @ApiOperation({ summary: 'Activate user' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'User id (must be the same as the authenticated user)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return activated user',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid user id',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Cannot activate other users',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User already activated',
+  })
   async activateUser(
     @Param('id') id: number,
     @Req() req: Request,
@@ -116,7 +260,7 @@ export default class UserController {
     const { user: userId } = req;
 
     if (!id) {
-      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User id is required', HttpStatus.BAD_REQUEST);
     }
     if (userId !== id) {
       throw new HttpException(

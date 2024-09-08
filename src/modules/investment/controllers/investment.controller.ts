@@ -12,7 +12,14 @@ import {
   Query,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import JwtAuthGuard from '../../auth/common/jwt.guard';
 import InvestmentService from '../services/investment.service';
 import { CreateInvestmentDto } from '../dtos/investment.dto';
@@ -30,6 +37,42 @@ export default class InvestmentController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get user investments' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number to fetch (default is 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items to fetch per page (default is 10)',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    description:
+      'Filter by status: "activated" or "deactivated" (default is all)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return user investments',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid status option. Use "activated" or "deactivated"',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User deactivated',
+  })
   async getInvestments(
     @Req() req: Request,
     @Query('page') page: number,
@@ -62,12 +105,39 @@ export default class InvestmentController {
     }
   }
 
+  @ApiOperation({ summary: 'Get user investment by id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'Investment id',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return investment by id',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User id is required',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Investment not found',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User deactivated',
+  })
   @Get(':id')
   async getInvestment(@Param('id') id: number, @Req() req: Request) {
     const { user: userId } = req;
 
     if (!id) {
-      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User id is required', HttpStatus.BAD_REQUEST);
     }
 
     try {
@@ -79,6 +149,23 @@ export default class InvestmentController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new investment' })
+  @ApiResponse({
+    status: 201,
+    description: 'Investment created successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'User deactivated',
+  })
   async createInvestment(
     @Req() req: Request,
     @Body() investment: CreateInvestmentDto,

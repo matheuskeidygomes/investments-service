@@ -57,7 +57,10 @@ export default class UsersService {
     const user: User = await this.getUserByIdOrThrow(id);
 
     if (user.deletedAt) {
-      throw new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'User is deactivated',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
 
     return user;

@@ -126,7 +126,10 @@ describe('InvestmentService', () => {
         await investmentService.getInvestmentById(1, userData.id);
       };
       await expect(investment).rejects.toThrowError(
-        new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED),
+        new HttpException(
+          'User is deactivated',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        ),
       );
     });
   });
@@ -159,7 +162,10 @@ describe('InvestmentService', () => {
         );
       };
       await expect(investment).rejects.toThrowError(
-        new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED),
+        new HttpException(
+          'User is deactivated',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        ),
       );
     });
 
@@ -232,7 +238,10 @@ describe('InvestmentService', () => {
         await investmentService.deactivateInvestment(1, userData.id);
       };
       await expect(investment).rejects.toThrowError(
-        new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED),
+        new HttpException(
+          'User is deactivated',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        ),
       );
     });
 
@@ -303,7 +312,10 @@ describe('InvestmentService', () => {
         await investmentService.deactivateInvestment(1, userData.id);
       };
       await expect(investment).rejects.toThrowError(
-        new HttpException('User is deactivated', HttpStatus.UNAUTHORIZED),
+        new HttpException(
+          'User is deactivated',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        ),
       );
     });
   });
