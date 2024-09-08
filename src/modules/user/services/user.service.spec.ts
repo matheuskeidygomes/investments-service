@@ -69,10 +69,11 @@ describe('UserService', () => {
 
       const result = await userService.getUsers(1, 10);
 
-      expect(result).toEqual([
-        { ...deepClone(usersData[0]), password: undefined },
-        { ...deepClone(usersData[1]), password: undefined },
-      ]);
+      expect(result.length).toBe(10);
+      expect(result[0]).toEqual({
+        ...deepClone(userData),
+        password: undefined,
+      });
     });
   });
 
