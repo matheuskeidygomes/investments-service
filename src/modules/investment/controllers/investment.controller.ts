@@ -17,13 +17,17 @@ import JwtAuthGuard from '../../auth/common/jwt.guard';
 import InvestmentService from '../services/investment.service';
 import { CreateInvestmentDto } from '../dtos/investment.dto';
 import { Investment } from '@prisma/client';
+import LoggerService from '../../../logger/services/logger.service';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('investment')
 @UseGuards(JwtAuthGuard)
 @Controller('investment')
 export default class InvestmentController {
-  constructor(private readonly investmentService: InvestmentService) {}
+  constructor(
+    private readonly investmentService: InvestmentService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Get()
   async getInvestments(
@@ -53,6 +57,7 @@ export default class InvestmentController {
         status,
       );
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -68,6 +73,7 @@ export default class InvestmentController {
     try {
       return await this.investmentService.getInvestmentById(id, userId);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -84,6 +90,7 @@ export default class InvestmentController {
         userId,
       );
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }

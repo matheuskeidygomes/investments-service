@@ -14,13 +14,17 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import JwtAuthGuard from '../../auth/common/jwt.guard';
 import WithdrawalService from '../services/withdrawal.service';
 import { Withdrawal } from '@prisma/client';
+import LoggerService from '../../../logger/services/logger.service';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('withdrawal')
 @UseGuards(JwtAuthGuard)
 @Controller('withdrawal')
 export default class WithdrawalController {
-  constructor(private readonly withdrawalService: WithdrawalService) {}
+  constructor(
+    private readonly withdrawalService: WithdrawalService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Get()
   async getWithdrawals(
@@ -38,6 +42,7 @@ export default class WithdrawalController {
         limitNumber,
       );
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -59,6 +64,7 @@ export default class WithdrawalController {
     try {
       return await this.withdrawalService.getWithdrawalById(id, userId);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -83,6 +89,7 @@ export default class WithdrawalController {
         userId,
       );
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -107,6 +114,7 @@ export default class WithdrawalController {
         userId,
       );
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }

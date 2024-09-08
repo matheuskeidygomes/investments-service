@@ -16,13 +16,17 @@ import JwtAuthGuard from '../../auth/common/jwt.guard';
 import UserService from '../services/user.service';
 import { UpdateUserDto } from '../dtos/user.dto';
 import { User } from '@prisma/client';
+import LoggerService from '../../../logger/services/logger.service';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('user')
 @UseGuards(JwtAuthGuard)
 @Controller('user')
 export default class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Get()
   async getUsers(
@@ -34,6 +38,7 @@ export default class UserController {
     try {
       return await this.userService.getUsers(pageNumber, limitNumber);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -47,6 +52,7 @@ export default class UserController {
     try {
       return await this.userService.getUserByIdOrThrow(id);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -72,6 +78,7 @@ export default class UserController {
     try {
       return await this.userService.updateUser(id, data as User);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -96,6 +103,7 @@ export default class UserController {
     try {
       return await this.userService.deactivateUser(id);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
@@ -120,6 +128,7 @@ export default class UserController {
     try {
       return await this.userService.activateUser(id);
     } catch (error) {
+      this.logger.error(`${error.status} - ${error.message}`);
       throw new HttpException(error.message, error.status);
     }
   }
