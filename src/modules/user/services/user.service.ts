@@ -86,11 +86,6 @@ export default class UsersService {
 
   async createUser(data: User): Promise<User> {
     const { name, email, password } = data;
-    const foundUser: User = await this.getUserByEmail(email);
-
-    if (foundUser) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
-    }
 
     const user: User = await this.prisma.user.create({
       data: {

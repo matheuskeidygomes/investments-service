@@ -3,10 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import AppModule from './app/app.module';
 import helmet from 'helmet';
+import { useContainer } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestApplication>(AppModule);
-
   app.enableCors();
   app.use(helmet());
   app.useGlobalPipes(
@@ -16,6 +16,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
     .setTitle('Investments Service')
