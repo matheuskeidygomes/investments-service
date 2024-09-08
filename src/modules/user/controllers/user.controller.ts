@@ -8,9 +8,9 @@ import {
   Get,
   Put,
   Req,
-  Request,
   Query,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import JwtAuthGuard from '../../auth/common/jwt.guard';
 import UserService from '../services/user.service';
@@ -63,7 +63,7 @@ export default class UserController {
     @Body() data: UpdateUserDto,
     @Param('id') id: number,
   ): Promise<User> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!id) {
       throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
@@ -88,7 +88,7 @@ export default class UserController {
     @Param('id') id: number,
     @Req() req: Request,
   ): Promise<User> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!id) {
       throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
@@ -113,7 +113,7 @@ export default class UserController {
     @Param('id') id: number,
     @Req() req: Request,
   ): Promise<User> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!id) {
       throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);

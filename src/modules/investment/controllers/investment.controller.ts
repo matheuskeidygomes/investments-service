@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
+import { Request } from 'express';
 import {
   Controller,
   Body,
@@ -8,7 +9,6 @@ import {
   Param,
   HttpException,
   Get,
-  Request,
   Query,
   HttpStatus,
 } from '@nestjs/common';
@@ -36,7 +36,7 @@ export default class InvestmentController {
     @Query('limit') limit: number,
     @Query('status') status: 'activated' | 'deactivated',
   ) {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
     const statusOptions = ['activated', 'deactivated'];
 
     if (status && !statusOptions.includes(status)) {
@@ -64,7 +64,7 @@ export default class InvestmentController {
 
   @Get(':id')
   async getInvestment(@Param('id') id: number, @Req() req: Request) {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!id) {
       throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
@@ -83,7 +83,7 @@ export default class InvestmentController {
     @Req() req: Request,
     @Body() investment: CreateInvestmentDto,
   ) {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
     try {
       return await this.investmentService.createInvestment(
         investment as Investment,

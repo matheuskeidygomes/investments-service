@@ -6,10 +6,10 @@ import {
   Param,
   HttpException,
   Get,
-  Request,
   Query,
   HttpStatus,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import JwtAuthGuard from '../../auth/common/jwt.guard';
 import WithdrawalService from '../services/withdrawal.service';
@@ -32,7 +32,7 @@ export default class WithdrawalController {
     @Query('page') page: number,
     @Query('limit') limit: number,
   ): Promise<Withdrawal[]> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
     const pageNumber = page || 1;
     const limitNumber = limit || 10;
     try {
@@ -52,7 +52,7 @@ export default class WithdrawalController {
     @Param('id') id: number,
     @Req() req: Request,
   ): Promise<Withdrawal> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!id) {
       throw new HttpException(
@@ -74,7 +74,7 @@ export default class WithdrawalController {
     @Param('investmentId') investmentId: number,
     @Req() req: Request,
   ): Promise<Withdrawal> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!investmentId) {
       throw new HttpException(
@@ -99,7 +99,7 @@ export default class WithdrawalController {
     @Param('investmentId') investmentId: number,
     @Req() req: Request,
   ): Promise<Withdrawal> {
-    const { user: userId } = req as any;
+    const { user: userId } = req;
 
     if (!investmentId) {
       throw new HttpException(
