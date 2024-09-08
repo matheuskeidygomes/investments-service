@@ -2,6 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import calculateInvestment from '../src/helpers/calculate';
+import { hashSync } from 'bcrypt';
 
 const usersNumber = 1000;
 const investmentsNumber = 100;
@@ -20,6 +21,8 @@ async function createUsers() {
 
   console.log('--- Creating users...');
 
+  const passwordHashed = hashSync('1111', 10);
+
   for (let i = 0; i < usersNumber; i++) {
     let email = faker.internet.email();
 
@@ -30,9 +33,9 @@ async function createUsers() {
     uniqueEmails.push(email);
 
     users.push({
-      email,
-      name: faker.person.fullName(),
-      password: faker.internet.password(),
+      email: `admin${i}@example.com`,
+      name: `Admin ${i}`,
+      password: passwordHashed,
     });
   }
 
@@ -98,8 +101,17 @@ async function createWithdrawals() {
 }
 
 async function main() {
-  console.log('------- Initiating seeding...');
+  const users = await prisma.user.findMany();
+  const investments = await prisma.investment.findMany();
+  const withdrawals = await prisma.withdrawal.findMany();
+
+  if (users.length > 0 && investments.length > 0 && withdrawals.length > 0) {
+    console.log('------- Database already seeded!');
+    return;
+  }
+
   try {
+    console.log('------- Initializing seed...');
     await createUsers();
     await createInvestments();
     await createWithdrawals();
