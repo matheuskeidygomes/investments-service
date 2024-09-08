@@ -6,7 +6,7 @@ services:
       context: .
       target: dev
     env_file: .env
-    command: sh -c "npm run prisma:migrate:save && npm run prisma:seed:save && npm run start:dev"
+    command: sh -c "npm run prisma:migrate:save && npm run prisma:seed:run && npm run start:dev"
     ports:
       - 3000:3000
     volumes:
