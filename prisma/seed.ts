@@ -100,13 +100,23 @@ async function createWithdrawals() {
   console.log('--- Withdrawals created: ' + withdrawals.length);
 }
 
-async function main() {
+async function isDatabaseSeeded() {
   const users = await prisma.user.findMany();
   const investments = await prisma.investment.findMany();
   const withdrawals = await prisma.withdrawal.findMany();
 
   if (users.length > 0 && investments.length > 0 && withdrawals.length > 0) {
     console.log('------- Database already seeded!');
+    return true;
+  }
+
+  return false;
+}
+
+async function main() {
+  const databaseSeeded = await isDatabaseSeeded();
+  if (databaseSeeded) {
+    await prisma.$disconnect();
     return;
   }
 
