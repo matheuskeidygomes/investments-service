@@ -20,20 +20,13 @@ function calculateMonthsAge(createdAt: Date, deletedAt?: Date) {
   return diffYear * 12 + diffMonth;
 }
 
-function calculateInvestmentAmount(
-  amount: number,
-  createdAt: Date,
-  currentDate?: Date,
-) {
-  const monthsAge = calculateMonthsAge(createdAt, currentDate);
+function calculateIncome(amount: number, monthsAge: number) {
   return amount * Math.pow(1 + interestRate, monthsAge);
 }
 
-function calculateTribute(amount: number, createdAt: Date, currentDate?: Date) {
-  const monthsAge = calculateMonthsAge(createdAt, currentDate);
+function calculateTribute(amount: number, monthsAge: number) {
   const tax = calculateTax(monthsAge);
-  const value = amount * tax;
-  return amount - value;
+  return amount * tax;
 }
 
 function calculateTax(months: number) {
@@ -44,13 +37,13 @@ function calculateTax(months: number) {
 
 export default function calculateInvestment(investment: Investment): number {
   const { amount, createdAt, deletedAt } = investment;
-  const calculatedInvestment = calculateInvestmentAmount(
-    amount,
-    createdAt,
-    deletedAt,
-  );
-  let total = calculateTribute(calculatedInvestment, createdAt, deletedAt);
-  total = total < 0 ? 0 : Number(total.toFixed(2));
 
-  return total;
+  const monthsAge = calculateMonthsAge(createdAt, deletedAt);
+  const calculatedIncome = calculateIncome(amount, monthsAge);
+  const calculatedTribute = calculateTribute(calculatedIncome, monthsAge);
+
+  const income = calculatedIncome - calculatedTribute;
+  const res = income < 0 ? 0 : Number(income.toFixed(2));
+
+  return res;
 }
