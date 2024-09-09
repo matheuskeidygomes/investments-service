@@ -55,7 +55,7 @@ async function createInvestments() {
 
   users.forEach((user, index) => {
     for (let i = 0; i < investmentsNumber; i++) {
-      const createdAt = randomDate(new Date(2020, 0, 1), new Date());
+      const createdAt = randomDate(new Date(2000, 0, 1), new Date());
       const deletedAt = index % 2 === 0 ? randomDate(createdAt, new Date()) : null;
 
       investments.push({
